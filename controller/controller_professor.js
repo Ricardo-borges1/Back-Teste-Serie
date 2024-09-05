@@ -72,31 +72,31 @@ const getListarProfessor = async function() {
 };
 
 // Função para buscar aluno por ID
-const getBuscarAlunoId = async function(id) {
+const getBuscarProfessorId = async function(id) {
     try {
-        let idAluno = id;
-        let alunoJSON = {};
+        let idProfessor = id;
+        let professorJSON = {};
 
-        if (idAluno === '' || idAluno === undefined || isNaN(idAluno)) {
+        if (idProfessor === '' || idProfessor === undefined || isNaN(idProfessor)) {
             return message.ERROR_INVALID_ID; // 400
         } else {
-            let dadosAlunos = await alunoDAO.selectAlunobyID(idAluno);
+            let dadosProfessores = await professorDAO.selectProfessorByID(idProfessor);
 
-            if (dadosAlunos) {
-                if (dadosAlunos.length > 0) {
-                    for (let i = 0; i < dadosAlunos.length; i++) {
-                        console.log(dadosAlunos[i]);
+            if (dadosProfessores) {
+                if (dadosProfessores.length > 0) {
+                    for (let i = 0; i < dadosProfessores.length; i++) {
+                        console.log(dadosProfessores[i]);
 
-                        let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
-                        let listaMateriasAluno = materiasAluno;
+                        let materiasProfessor = await materiaDAO.selectMateriaByIdProfessor(dadosProfessores[i].id);
+                        let listaMateriasProfessores = materiasProfessor;
 
-                        dadosAlunos[i].materias = listaMateriasAluno;
+                        dadosProfessores[i].materias = listaMateriasProfessores;
                     }
                     
-                    alunoJSON.aluno = dadosAlunos;
-                    alunoJSON.status_code = 200;
+                    professorJSON.professor = dadosProfessores;
+                    professorJSON.status_code = 200;
 
-                    return alunoJSON;
+                    return professorJSON;
                 } else {
                     return message.ERROR_NOT_FOUND;
                 }
@@ -229,7 +229,7 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
 // Exporta as funções
 module.exports = {
     getListarProfessor,
-    getBuscarAlunoId,
+    getBuscarProfessorId,
     setInserirNovoAluno,
     setAtualizarAluno,
     setExcluirAluno
