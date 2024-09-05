@@ -6,7 +6,7 @@
 
 // Importa as mensagens e os DAOs
 const message = require('./modulo/config.js');
-const alunoDAO = require('../model/aluno.js');
+const professorDAO = require('../model/professor.js');
 const materiaDAO = require('../model/materia.js');
 
 // Função auxiliar para validar a data de nascimento
@@ -41,27 +41,27 @@ function isValidDate(dateString) {
 }
 
 // Função para listar alunos
-const getListarAluno = async function() {
+const getListarProfessor = async function() {
     try {
-        let alunoJSON = {};
-        let dadosAlunos = await alunoDAO.selectAllAlunos();
+        let professorJSON = {};
+        let dadosProfessores = await professorDAO.selectAllProfessores();
 
-        if (dadosAlunos) {
-            for (let i = 0; i < dadosAlunos.length; i++) {
-                console.log(dadosAlunos[i]);
+        if (dadosProfessores) {
+            for (let i = 0; i < dadosProfessores.length; i++) {
+                console.log(dadosProfessores[i]);
 
-                let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
-                let listaMateriasAluno = materiasAluno;
+                let materiasProfessor = await materiaDAO.selectMateriaByIdProfessor(dadosProfessores[i].id);
+                let listaMateriasProfessores = materiasProfessor;
 
-                dadosAlunos[i].materias = listaMateriasAluno;
+                dadosProfessores[i].materias = listaMateriasProfessores;
             }
 
-            console.log(dadosAlunos);
+            console.log(dadosProfessores);
             
-            alunoJSON.aluno = dadosAlunos;
-            alunoJSON.quantidade = dadosAlunos.length;
-            alunoJSON.status_code = 200;
-            return alunoJSON;
+            professorJSON.professores = dadosProfessores;
+            professorJSON.quantidade = dadosProfessores.length;
+            professorJSON.status_code = 200;
+            return professorJSON;
         } else {
             return message.ERROR_NOT_FOUND;
         }
@@ -228,7 +228,7 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
 
 // Exporta as funções
 module.exports = {
-    getListarAluno,
+    getListarProfessor,
     getBuscarAlunoId,
     setInserirNovoAluno,
     setAtualizarAluno,

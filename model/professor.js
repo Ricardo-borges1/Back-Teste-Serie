@@ -1,7 +1,7 @@
 /*******************************************************
  * DATA: 05/09/2024
  * Autor: Ricardo Borges
- * Versão: 1.1
+ * Versão: 1.0
 *******************************************************/
 
 // Importa de biblioteca do @prisma/client
@@ -10,16 +10,15 @@ const { PrismaClient } = require('@prisma/client')
 // Instacia da classe PrismaClient
 const prisma = new PrismaClient()
 
-
-const selectAlunobyID = async function(id){
+const selectProfessorByID = async function(id){
     try {
         // Realiza a busca do genero pelo ID
-        let sql = `select * from tbl_alunos where id = ${id}`;
+        let sql = `select * from tbl_professor where id = ${id}`;
 
         // Executa no banco de dados o script sql
-        let rsAluno= await prisma.$queryRawUnsafe(sql);
+        let rsProfessor= await prisma.$queryRawUnsafe(sql);
 
-            return rsAluno;
+            return rsProfessor;
     
         } catch (error) {
             console.log(error);
@@ -29,15 +28,16 @@ const selectAlunobyID = async function(id){
         
 }
 
-const selectAllAlunos = async function(){
+
+const selectAllProfessores = async function(){
     try {
         // Realiza a busca do genero pelo ID
-        let sql = `select * from tbl_alunos where id > 0`;
+        let sql = `select * from tbl_professor where id > 0`;
 
         // Executa no banco de dados o script sql
-        let rsAluno= await prisma.$queryRawUnsafe(sql);
+        let rsProfessor= await prisma.$queryRawUnsafe(sql);
 
-            return rsAluno;
+            return rsProfessor;
     
         } catch (error) {
             console.log(error);
@@ -47,25 +47,27 @@ const selectAllAlunos = async function(){
         
 }
 
-const insertAluno = async function(dadosAluno) {
-    try {
-        console.log(dadosAluno);
 
+const insertProfessor = async function(dadosProfessores) {
+    try {
+        
         let sql;
 
-         sql = ` INSERT INTO tbl_alunos (
+         sql = ` INSERT INTO tbl_professor (
                             nome,
                             email,
                             senha,
                             telefone,
-                            data_nascimento
+                            data_nascimento,
+                            diploma_licenciatura
                         ) 
          VALUES 
-           ('${dadosAluno.nome}',
-           '${dadosAluno.email}',
-           '${dadosAluno.senha}',
-           '${dadosAluno.telefone}',
-           '${dadosAluno.data_nascimento}'
+           ('${dadosProfessores.nome}',
+           '${dadosProfessores.email}',
+           '${dadosProfessores.senha}',
+           '${dadosProfessores.telefone}',
+           '${dadosProfessores.data_nascimento}',
+           '${dadosProfessores.diploma_licenciatura}'
            )`; 
            
            console.log(sql);
@@ -75,23 +77,23 @@ const insertAluno = async function(dadosAluno) {
         
         if (result){
 
-            let lastID=await lastIDAluno()
-            for (let aluno of dadosAluno.materia_id) {
+            let lastID=await lastIDProfessor()
+            for (let professor of dadosProfessores.materia_id) {
 
                 // Verificar se a combinação já existe
-                let checkSql = `SELECT * FROM tbl_alunos_materias 
-                                WHERE aluno_id = ${lastID[0].id} AND materia_id = ${aluno};`;
+                let checkSql = `SELECT * FROM tbl_professor_materias 
+                                WHERE professor_id = ${lastID[0].id} AND materia_id = ${professor};`;
 
                 let insert = await prisma.$queryRawUnsafe(checkSql);
 
                 if (insert.length === 0) {
                     // Se não existe, insere
-                    sql = `INSERT INTO tbl_alunos_materias (
-                        aluno_id, 
+                    sql = `INSERT INTO tbl_professor_materias (
+                        professor_id, 
                         materia_id
                     ) VALUES (
                         ${lastID[0].id},
-                        ${aluno}
+                        ${professor}
                     );`;
 
                     let insertResult = await prisma.$executeRawUnsafe(sql);
@@ -113,9 +115,10 @@ const insertAluno = async function(dadosAluno) {
     }
 }
 
-const lastIDAluno = async function(){
+
+const lastIDProfessor = async function(){
     try {
-        let sql = `SELECT id FROM tbl_alunos ORDER BY id DESC LIMIT 1;`
+        let sql = `SELECT id FROM tbl_professor ORDER BY id DESC LIMIT 1;`
 
         let sqlID = await prisma.$queryRawUnsafe(sql)
 
@@ -126,30 +129,10 @@ const lastIDAluno = async function(){
     
 }
 
-const deleteAluno = async(id) =>{
-    try{
-
-        let sql = `delete from tbl_alunos where id = ${id}`
-       
-    
-        //Executa o sql no banco de dados
-        let rsdeleteUsuario = await prisma.$executeRawUnsafe(sql)
-
-    
-       return rsdeleteUsuario
-    
-        } catch(error){
-            return false
-        }
-}
-
 
 module.exports ={
-    selectAllAlunos,
-    selectAlunobyID,
-    lastIDAluno,
-    deleteAluno,
-    insertAluno
-
+    selectAllProfessores,
+    selectProfessorByID,
+    lastIDProfessor,
+    insertProfessor
 }
-

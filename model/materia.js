@@ -55,8 +55,41 @@ const selectMateriaByIdAluno = async function(id) {
 }
 
 
+const selectMateriaByIdProfessor = async function(id) {
+
+    try {
+        let sql = `   SELECT 
+        m.id As id, m.materia AS materia
+    FROM 
+        tbl_professor a
+    JOIN 
+        tbl_professor_materias am ON a.id = am.professor_id
+    JOIN 
+        tbl_materias m ON am.materia_id = m.id
+    WHERE 
+        a.id = ${id};`
+
+        // Executa no banco de dados o script sql
+        let rsMateria= await prisma.$queryRawUnsafe(sql);
+
+        console.log(rsMateria);
+
+            return rsMateria;
+    
+        } catch (error) {
+            console.log(error);
+            return false;
+            
+        }
+}
+
+
+
+
+
 module.exports ={
     selectAllMaterias,
-    selectMateriaByIdAluno
+    selectMateriaByIdAluno,
+    selectMateriaByIdProfessor
 }
 
