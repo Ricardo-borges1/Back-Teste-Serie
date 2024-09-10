@@ -59,7 +59,7 @@ const insertProfessor = async function(dadosProfessores) {
                             senha,
                             telefone,
                             data_nascimento,
-                            diploma_licenciatura
+                            especializacao
                         ) 
          VALUES 
            ('${dadosProfessores.nome}',
@@ -67,7 +67,7 @@ const insertProfessor = async function(dadosProfessores) {
            '${dadosProfessores.senha}',
            '${dadosProfessores.telefone}',
            '${dadosProfessores.data_nascimento}',
-           '${dadosProfessores.diploma_licenciatura}'
+           '${dadosProfessores.especializacao}'
            )`; 
            
            console.log(sql);
@@ -130,9 +130,73 @@ const lastIDProfessor = async function(){
 }
 
 
+const updateProfessor = async function(id, dadosProfessores) {
+    try {
+        // Atualiza os dados do professor na tabela tbl_professor
+        let sql = `
+            UPDATE tbl_professor
+            SET 
+                nome = '${dadosProfessores.nome}',
+                email = '${dadosProfessores.email}',
+                senha = '${dadosProfessores.senha}',
+                telefone = '${dadosProfessores.telefone}',
+                data_nascimento = '${dadosProfessores.data_nascimento}',
+                especializacao = '${dadosProfessores.especializacao}'
+            WHERE id = ${id};
+        `;
+        
+        console.log(sql);
+
+        let result = await prisma.$executeRawUnsafe(sql);
+
+        if (result) {
+            // Verifica se todas as matérias existem
+            for (let materia of dadosProfessores.materia_id) {
+                let checkMateriaSql = `SELECT COUNT(*) AS count FROM tbl_materias WHERE id = ${materia};`;
+                let countResult = await prisma.$queryRawUnsafe(checkMateriaSql);
+                if (countResult[0].count === 0) {
+                    console.log(`Erro: Matéria com ID ${materia} não encontrada.`);
+                    return false;
+                }
+            }
+
+            // Remove todas as associações antigas de matérias para o professor
+            sql = `DELETE FROM tbl_professor_materias WHERE professor_id = ${id};`;
+            result = await prisma.$executeRawUnsafe(sql);
+
+            if (!result) {
+                return false;
+            }
+
+            // Adiciona as novas associações de matérias
+            for (let materia of dadosProfessores.materia_id) {
+                sql = `
+                    INSERT INTO tbl_professor_materias (professor_id, materia_id)
+                    VALUES (${id}, ${materia});
+                `;
+                
+                let insertResult = await prisma.$executeRawUnsafe(sql);
+
+                if (!insertResult) {
+                    return false;
+                }
+            }
+
+            return result;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+
 module.exports ={
     selectAllProfessores,
     selectProfessorByID,
     lastIDProfessor,
-    insertProfessor
+    insertProfessor,
+    updateProfessor
 }

@@ -110,41 +110,38 @@ const getBuscarProfessorId = async function(id) {
 };
 
 // Função para inserir novo aluno
-const setInserirNovoAluno = async function(dadosAluno, contentType) {
+const setInserirNovoProfessor = async function(dadosProfessores, contentType) {
     try {
         if (String(contentType).toLowerCase() === 'application/json') {
-            let alunoJSON = {};
+            let professorJSON = {};
 
             console.log('oi');
 
             // Validação de campos obrigatórios ou com digitação inválida
-            if (dadosAluno.nome === '' || dadosAluno.nome === undefined || dadosAluno.nome === null || dadosAluno.nome.length > 100 ||
-                dadosAluno.email === '' || dadosAluno.email === undefined || dadosAluno.email === null || dadosAluno.email.length > 100 ||
-                dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
-                dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
-                dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length !== 10 ||
-                !isValidDate(dadosAluno.data_nascimento) ||
-                dadosAluno.materia_id === '' || dadosAluno.materia_id === undefined || dadosAluno.materia_id === null || dadosAluno.materia_id.length > 2
+            if (dadosProfessores.nome === '' || dadosProfessores.nome === undefined || dadosProfessores.nome === null || dadosProfessores.nome.length > 100 ||
+            dadosProfessores.email === '' || dadosProfessores.email === undefined || dadosProfessores.email === null || dadosProfessores.email.length > 100 ||
+            dadosProfessores.telefone === '' || dadosProfessores.telefone === undefined || dadosProfessores.telefone === null || dadosProfessores.telefone.length > 12 ||
+            dadosProfessores.senha === '' ||dadosProfessores.senha === undefined || dadosProfessores.senha === null || dadosProfessores.senha.length > 255 ||
+            dadosProfessores.data_nascimento === '' ||dadosProfessores.data_nascimento === undefined || dadosProfessores.data_nascimento === null || dadosProfessores.data_nascimento.length !== 10 ||
+            dadosProfessores.especializacao === '' ||dadosProfessores.especializacao === undefined || dadosProfessores.especializacao === null || dadosProfessores.especializacao.length > 256 ||
+                !isValidDate(dadosProfessores.data_nascimento) ||
+                dadosProfessores.materia_id === '' || dadosProfessores.materia_id === undefined || dadosProfessores.materia_id === null || dadosProfessores.materia_id.length > 2
             ) {
                 return message.ERROR_REQUIRED_FIELDS;
 
             } else {
-
-                console.log(dadosAluno.materia_id);
+                let novoProfessor = await professorDAO.insertProfessor(dadosProfessores);
                 
+                if (novoProfessor) {
+                    let lastId = await professorDAO.lastIDProfessor();
+                    dadosProfessores.id = lastId[0].id;
 
-                let novoAluno = await alunoDAO.insertAluno(dadosAluno);
-                
-                if (novoAluno) {
-                    let lastId = await alunoDAO.lastIDAluno();
-                    dadosAluno.id = lastId[0].id;
+                    professorJSON.professor = dadosProfessores;
+                    professorJSON.status = message.SUCCESS_CREATED_ITEM.status;
+                    professorJSON.status_code = message.SUCCESS_CREATED_ITEM.status_code;
+                    professorJSON.message = message.SUCCESS_CREATED_ITEM.message;
 
-                    alunoJSON.aluno = dadosAluno;
-                    alunoJSON.status = message.SUCCESS_CREATED_ITEM.status;
-                    alunoJSON.status_code = message.SUCCESS_CREATED_ITEM.status_code;
-                    alunoJSON.message = message.SUCCESS_CREATED_ITEM.message;
-
-                    return alunoJSON; // 201
+                    return professorJSON; // 201
                 } else {
                     return message.ERROR_INTERNAL_SERVER_DB; // 500
                 }
@@ -158,16 +155,16 @@ const setInserirNovoAluno = async function(dadosAluno, contentType) {
 };
 
 // Função para excluir aluno
-const setExcluirAluno = async function(id) {
+const setExcluirProfessor = async function(id) {
     try {
-        let idAluno = id;
+        let idProfessor = id;
 
-        if (idAluno === '' || idAluno === undefined || isNaN(idAluno)) {
+        if (idProfessor === '' || idProfessor === undefined || isNaN(idProfessor)) {
             return message.ERROR_INVALID_ID; // 400
         } else {
-            let alunoDeletado = await alunoDAO.deleteAluno(idAluno);
+            let professorDeletado = await professorDAO.deleteProfessor(idProfessor);
 
-            if (alunoDeletado) {
+            if (professorDeletado) {
                 return message.SUCCESS_DELETED_ITEM;
             } else {
                 return message.ERROR_INTERNAL_SERVER_DB; // 500
@@ -179,37 +176,39 @@ const setExcluirAluno = async function(id) {
 };
 
 // Função para atualizar aluno
-const setAtualizarAluno = async function(id, dadosAluno, contentType) {
+const setAtualizarProfessor = async function(id, dadosProfessores, contentType) {
     try {
-        let idAluno = id;
+        let idProfessor = id;
 
-        if (idAluno === '' || idAluno === undefined || isNaN(idAluno) || idAluno === null) {
+        if (idProfessor === '' || idProfessor === undefined || isNaN(idProfessor) || idProfessor === null) {
             return message.ERROR_INVALID_ID;
         } else {
             if (String(contentType).toLowerCase() === 'application/json') {
-                let updateAlunoJSON = {};
+                let updateProfessorJSON = {};
                 
-                if (dadosAluno.nome === '' || dadosAluno.nome === undefined || dadosAluno.nome === null || dadosAluno.nome.length > 100 ||
-                    dadosAluno.email === '' || dadosAluno.email === undefined || dadosAluno.email === null || dadosAluno.email.length > 100 ||
-                    dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
-                    dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
-                    dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length > 10 ||
-                    !isValidDate(dadosAluno.data_nascimento)
-                ) {
+                if (dadosProfessores.nome === '' || dadosProfessores.nome === undefined || dadosProfessores.nome === null || dadosProfessores.nome.length > 100 ||
+                 dadosProfessores.email === '' || dadosProfessores.email === undefined || dadosProfessores.email === null || dadosProfessores.email.length > 100 ||
+            dadosProfessores.telefone === '' || dadosProfessores.telefone === undefined || dadosProfessores.telefone === null || dadosProfessores.telefone.length > 12 ||
+            dadosProfessores.senha === '' ||dadosProfessores.senha === undefined || dadosProfessores.senha === null || dadosProfessores.senha.length > 255 ||
+            dadosProfessores.data_nascimento === '' ||dadosProfessores.data_nascimento === undefined || dadosProfessores.data_nascimento === null || dadosProfessores.data_nascimento.length !== 10 ||
+            dadosProfessores.especializacao === '' ||dadosProfessores.especializacao === undefined || dadosProfessores.especializacao === null || dadosProfessores.especializacao.length > 256 ||
+                !isValidDate(dadosProfessores.data_nascimento) ||
+                dadosProfessores.materia_id === '' || dadosProfessores.materia_id === undefined || dadosProfessores.materia_id === null || dadosProfessores.materia_id.length > 2
+            ) {
                     return message.ERROR_REQUIRED_FIELDS;
                 } else {
-                    let alunoById = await alunoDAO.selectAlunobyID(id);
+                    let professorById = await professorDAO.selectProfessorByID(id);
 
-                    if (alunoById.length > 0) {
-                        let uptadeAluno = await alunoDAO.updateAluno(id, dadosAluno);
+                    if (professorById.length > 0) {
+                        let uptadeProfessor = await professorDAO.updateProfessor(id, dadosProfessores);
                         
-                        if (uptadeAluno) {
-                            updateAlunoJSON.aluno = dadosAluno;
-                            updateAlunoJSON.status = message.SUCCESS_UPDATED_ITEM.status;
-                            updateAlunoJSON.status_code = message.SUCCESS_UPDATED_ITEM.status_code;
-                            updateAlunoJSON.message = message.SUCCESS_UPDATED_ITEM.message;
+                        if (uptadeProfessor) {
+                            updateProfessorJSON.professor = dadosProfessores;
+                            updateProfessorJSON.status = message.SUCCESS_UPDATED_ITEM.status;
+                            updateProfessorJSON.status_code = message.SUCCESS_UPDATED_ITEM.status_code;
+                            updateProfessorJSON.message = message.SUCCESS_UPDATED_ITEM.message;
                             
-                            return updateAlunoJSON;
+                            return updateProfessorJSON;
                         } else {
                             return message.ERROR_INTERNAL_SERVER_DB;
                         }
@@ -230,7 +229,7 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
 module.exports = {
     getListarProfessor,
     getBuscarProfessorId,
-    setInserirNovoAluno,
-    setAtualizarAluno,
-    setExcluirAluno
+    setInserirNovoProfessor,
+    setAtualizarProfessor,
+    
 };

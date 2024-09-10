@@ -122,9 +122,12 @@ const bodyParserJSON = bodyParser.json()
      })
 
 
+
      app.listen('8080', function(){
         console.log('API funcionando!!')
     })
+
+
 
 
 

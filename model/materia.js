@@ -30,7 +30,8 @@ const selectMateriaByIdAluno = async function(id) {
 
     try {
         let sql = `   SELECT 
-        m.id As id, m.materia AS materia
+        m.id AS id, 
+        m.nome_materia AS materia
     FROM 
         tbl_alunos a
     JOIN 
@@ -38,7 +39,7 @@ const selectMateriaByIdAluno = async function(id) {
     JOIN 
         tbl_materias m ON am.materia_id = m.id
     WHERE 
-        a.id = ${id};`;
+        a.id = ${id}`
 
         // Executa no banco de dados o script sql
         let rsMateria= await prisma.$queryRawUnsafe(sql);
@@ -59,7 +60,7 @@ const selectMateriaByIdProfessor = async function(id) {
 
     try {
         let sql = `   SELECT 
-        m.id As id, m.materia AS materia
+        m.id As id, m.nome_materia AS materia
     FROM 
         tbl_professor a
     JOIN 

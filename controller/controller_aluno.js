@@ -123,6 +123,7 @@ const setInserirNovoAluno = async function(dadosAluno, contentType) {
                 dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
                 dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
                 dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length !== 10 ||
+                dadosAluno.serie === '' || dadosAluno.serie === undefined || dadosAluno.serie === null || dadosAluno.serie.length > 20 ||
                 !isValidDate(dadosAluno.data_nascimento) ||
                 dadosAluno.materia_id === '' || dadosAluno.materia_id === undefined || dadosAluno.materia_id === null || dadosAluno.materia_id.length > 2
             ) {
@@ -193,6 +194,7 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
                     dadosAluno.email === '' || dadosAluno.email === undefined || dadosAluno.email === null || dadosAluno.email.length > 100 ||
                     dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
                     dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
+                    dadosAluno.serie === '' || dadosAluno.serie === undefined || dadosAluno.serie === null || dadosAluno.serie.length > 20 ||
                     dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length > 10 ||
                     !isValidDate(dadosAluno.data_nascimento)
                 ) {
