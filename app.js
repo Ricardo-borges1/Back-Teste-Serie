@@ -180,7 +180,7 @@ const bodyParserJSON = bodyParser.json()
         response.status(dadosMaterias.status_code)
         response.json(dadosMaterias)
     })
-    
+
     app.get('/v1/studyfy/alunos/materias/:id', cors(), async function(request, response){
 
         let idAluno = request.params.id
@@ -192,6 +192,43 @@ const bodyParserJSON = bodyParser.json()
         response.json(dadosMaterias)
     })
 
+
+     // //EndPoint: Ele insere dados sobre o filme
+     app.post('/v1/studyFy/materias', cors(), bodyParserJSON, async function(request, response){
+
+        // Recebe o content-type da requisição
+        let contentType = request.headers['content-type']
+
+        //Recebe todos os dados encaminhados na requisição pelo Body
+        let dadosBody = request.body
+
+        //Encaminha os dados para a controller enviar para o DAO
+        let resultDadosNovaMateria = await controllerMateria.setInserirNovaMateria(dadosBody, contentType)
+        
+        response.status(resultDadosNovaMateria.status_code)
+        response.json(resultDadosNovaMateria)
+    })
+
+     //EndPoint: Ele deleta os dados pelo id 
+    app.delete('/v1/studyFy/materias/:id', cors(), async function(request, response, next){
+        let idMateria = request.params.id
+
+        let dadosMaterias = await controllerMateria.setExcluirMateria(idMateria)
+
+        response.status(dadosMaterias.status_code)
+        response.json(dadosMaterias)
+    })
+
+     app.put('/v1/studyFy/materias/:id', cors(), bodyParserJSON, async function(request, response){
+         let contentType = request.headers['content-type']
+         let dadosBody = request.body
+         let idMateria = request.params.id
+
+         let dadosMaterias = await controllerMateria.setAtualizarMateria(idMateria, dadosBody, contentType)
+
+       response.status(dadosMaterias.status_code)
+       response.json(dadosMaterias)
+     })
 
      app.listen('8080', function(){
         console.log('API funcionando!!')

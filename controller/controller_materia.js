@@ -58,72 +58,122 @@ const getListarMateriasByIdAluno = async function(id) {
     }
 }
 
-const setInserirNovaMateria = async function (dadosMaterias, contentType ){
 
-    try{
+const setInserirNovaMateria = async function (dadosMaterias, contentType) {
+    try {
+        // Valida o contentType
+        if (String(contentType).toLowerCase() !== 'application/json') {
+            return message.ERROR_CONTENT_TYPE; // 415
+        }
 
-console.log(contentType);
-    // validação para aplicação do contentType
-    if(String(contentType).toLowerCase() == 'application/json'){
-
-    // cria o objeto JSON para devolver os dados criados na requisição
-    let novaMateriaJSON = {};
-    
-
-    
-    // validação de campos obrigatorios ou com digitação inválida
-    if(dadosMaterias.nome_materia == ''    || dadosMaterias.nome_materia == undefined       ||  dadosMaterias.nome_materia == null               || dadosMaterias.nome_materia.length > 255         
-    ){
+        console.log('a');
         
-        // return do status code 400
-        return message.ERROR_REQUIRED_FIELDS
-    
-    } else {
 
-        let validateStatus = true;
+        // Valida campos obrigatórios
+        const validationError = validateMateria(dadosMaterias);
+        if (validationError) {
+            return validationError; // Retorna erro de validação
+        }
 
-     // validação para verificar se podemos encaminhar os dados para o DA0
-     if(validateStatus){
+        // Inserir dados no banco
+        const novaMateria = await materiaDAO.insertMateria(dadosMaterias);
 
-        // Encaminha os dados do filme para o DAO inserir dados
-        let novaMateria = await materiaDAO.insertMateria(dadosMaterias);
-
-        console.log(novaMateria);
-
-        // validação para verificar se o DAO inseriu os dados do BD
-        if (novaMateria)
-        {
-
-            let ultimoId = await materiaDAO.InsertByIdMateria ()
-            dadosMaterias.id = ultimoId[0].id
+        console.log('b');
         
-            // se inseriu cria o JSON dos dados (201)
-            novaMateriaJSON.materias  = dadosMaterias
-            novaMateriaJSON.status = message.SUCESS_CREATED_ITEM.status
-            novaMateriaJSON.status_code = message.SUCESS_CREATED_ITEM.status_code
-            novaMateriaJSON.message = message.SUCESS_CREATED_ITEM.message 
 
-            return  novaMateriaJSON; // 201
-        }else{
-         
-            return message.ERROR_INTERNAL_SERVER_DB // 500
-            }
-        }   
-      }
-    } else {
-        return message.ERROR_CONTENT_TYPE // 415
+        if (novaMateria) {
+            const ultimoId = await materiaDAO.InsertByIdMateria(); // Ajustado para refletir a função adequada
+            dadosMaterias.id = ultimoId[0].id;
+
+            console.log('c');
+            
+
+            return {
+                materias: dadosMaterias,
+                status_code: message.SUCCESS_CREATED_ITEM.status_code,
+                message: message.SUCCESS_CREATED_ITEM.message
+            }; // 201
+        } else {
+           
+            
+            return message.ERROR_INTERNAL_SERVER_DB; // 500
+        }
+    } catch (error) {
+        console.error(error);
+        return message.ERROR_INTERNAL_SERVER; // 500
     }
-} catch(error){
-    return message.ERROR_INTERNAL_SERVER // 500
+};
+
+// Função para validar 'dadosMaterias'
+function validateMateria(dados) {
+    if (!dados.nome_materia || typeof dados.nome_materia !== 'string' || dados.nome_materia.trim() === '' || dados.nome_materia.length > 255) {
+        return message.ERROR_REQUIRED_FIELDS; // 400
+    }
+    return null;
 }
 
+
+
+
+const setAtualizarMateria = async function (id, dadosMaterias, contentType) { 
+    try {
+        if (String(contentType).toLowerCase() == 'application/json') {
+            let idMateria = id
+            if (idMateria == '' || idMateria == undefined || isNaN(idMateria))
+                return message.ERROR_INVALID_ID
+            else {
+                let materia = await materiaDAO.selectByIdMateria(idMateria)
+                if (materia) {
+                    let materiaAtualizadaJSON = {}
+                    let materiaAtualizada = await materiaDAO.updateMateria(idMateria, dadosMaterias)
+                    if (materiaAtualizada) {
+                        materiaAtualizadaJSON.materia = dadosMaterias
+                        materiaAtualizadaJSON.status = message.SUCCESS_UPDATED_ITEM.status
+                        materiaAtualizadaJSON.status_code = message.SUCCESS_UPDATED_ITEM.status_code
+                        materiaAtualizadaJSON.message = message.SUCCESS_UPDATED_ITEM.message
+                        return materiaAtualizadaJSON
+                    }
+                    else {
+                        return message.ERROR_NOT_FOUND
+                    }
+                }
+                else
+                    return message.ERROR_NOT_FOUND
+            }
+        } else {
+            return message.ERROR_CONTENT_TYPE
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return message.ERROR_INTERNAL_SERVER
+    }
 }
 
+const setExcluirMateria = async function (id) {
+    try {
+        let idMateria = id
+        if (idMateria == '' || idMateria == undefined || isNaN(idMateria))
+            return message.ERROR_INVALID_ID
+        else {
+            let comando = await materiaDAO.deleteMateria(idMateria)
+            if (comando)
+                return message.SUCCESS_DELETED_ITEM
+            else {
+                return message.ERROR_NOT_FOUND
+            }
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
+    }
+}
 
 
 
 module.exports = {
     getListarMaterias,
     getListarMateriasByIdAluno,
-    setInserirNovaMateria
+    setInserirNovaMateria,
+    setAtualizarMateria,
+    setExcluirMateria
 };

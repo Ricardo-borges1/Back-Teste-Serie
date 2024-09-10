@@ -177,6 +177,16 @@ const InsertByIdMateria = async function (){
     }
 }
 
+const selectByIdMateria =async function(id){
+    try {
+        let sql=`select * from tbl_materias where id=${id}`
+        let rsMateria = await prisma.$queryRawUnsafe(sql)
+        return rsMateria
+    } catch (error) {
+        return false
+    }
+}
+
 
 module.exports ={
     selectAllMaterias,
@@ -186,6 +196,7 @@ module.exports ={
     deleteMateria,
     insertMateria,
     updateMateria,
-    InsertByIdMateria
+    InsertByIdMateria,
+    selectByIdMateria
 }
 
