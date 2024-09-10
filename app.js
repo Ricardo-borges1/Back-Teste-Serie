@@ -171,7 +171,7 @@ const bodyParserJSON = bodyParser.json()
 
       //       --------------------   CRUD MATERIA  ---------------------        //
 
-      app.get('/v1/studyfy/materias', cors(), async function(request, response){
+      app.get('/v1/studyfy/materia', cors(), async function(request, response){
 
         // -> Chama a função da controller para retornar todos os filmes
         let dadosMaterias = await controllerMateria.getListarMaterias()
