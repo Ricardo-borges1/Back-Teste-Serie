@@ -58,9 +58,72 @@ const getListarMateriasByIdAluno = async function(id) {
     }
 }
 
+const setInserirNovaMateria = async function (dadosMaterias, contentType ){
+
+    try{
+
+console.log(contentType);
+    // validação para aplicação do contentType
+    if(String(contentType).toLowerCase() == 'application/json'){
+
+    // cria o objeto JSON para devolver os dados criados na requisição
+    let novaMateriaJSON = {};
+    
+
+    
+    // validação de campos obrigatorios ou com digitação inválida
+    if(dadosMaterias.nome_materia == ''    || dadosMaterias.nome_materia == undefined       ||  dadosMaterias.nome_materia == null               || dadosMaterias.nome_materia.length > 255         
+    ){
+        
+        // return do status code 400
+        return message.ERROR_REQUIRED_FIELDS
+    
+    } else {
+
+        let validateStatus = true;
+
+     // validação para verificar se podemos encaminhar os dados para o DA0
+     if(validateStatus){
+
+        // Encaminha os dados do filme para o DAO inserir dados
+        let novaMateria = await materiaDAO.insertMateria(dadosMaterias);
+
+        console.log(novaMateria);
+
+        // validação para verificar se o DAO inseriu os dados do BD
+        if (novaMateria)
+        {
+
+            let ultimoId = await materiaDAO.InsertByIdMateria ()
+            dadosMaterias.id = ultimoId[0].id
+        
+            // se inseriu cria o JSON dos dados (201)
+            novaMateriaJSON.materias  = dadosMaterias
+            novaMateriaJSON.status = message.SUCESS_CREATED_ITEM.status
+            novaMateriaJSON.status_code = message.SUCESS_CREATED_ITEM.status_code
+            novaMateriaJSON.message = message.SUCESS_CREATED_ITEM.message 
+
+            return  novaMateriaJSON; // 201
+        }else{
+         
+            return message.ERROR_INTERNAL_SERVER_DB // 500
+            }
+        }   
+      }
+    } else {
+        return message.ERROR_CONTENT_TYPE // 415
+    }
+} catch(error){
+    return message.ERROR_INTERNAL_SERVER // 500
+}
+
+}
+
+
 
 
 module.exports = {
     getListarMaterias,
-    getListarMateriasByIdAluno
+    getListarMateriasByIdAluno,
+    setInserirNovaMateria
 };

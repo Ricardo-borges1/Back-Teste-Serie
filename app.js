@@ -29,6 +29,7 @@ app.use((request, response, next) =>{
 /*********************** Import dos arquivos de controller do projeto ***********************************/
 const controllerAluno = require('./controller/controller_aluno.js')
 const controllerMateria = require('./controller/controller_materia.js')
+const controllerProfessor = require ('./controller/controller_professor.js')
 
 /*******************************************************************************************************/
 
@@ -50,26 +51,7 @@ const bodyParserJSON = bodyParser.json()
         response.json(dadosAlunos)
     })
 
-    app.get('/v1/studyfy/materias', cors(), async function(request, response){
-
-        // -> Chama a função da controller para retornar todos os filmes
-        let dadosMaterias = await controllerMateria.getListarMaterias()
-
-        // -> validação para verificar se existem dados a serem retornados
-        response.status(dadosMaterias.status_code)
-        response.json(dadosMaterias)
-    })
-    
-    app.get('/v1/studyfy/alunos/materias/:id', cors(), async function(request, response){
-
-        let idAluno = request.params.id
-
-        let dadosMaterias = await controllerMateria.getListarMateriasByIdAluno(idAluno)
-
-        // -> validação para verificar se existem dados a serem retornados
-        response.status(dadosMaterias.status_code)
-        response.json(dadosMaterias)
-    })
+   
 
     // // EndPoint: ele retorna os dados pelo id
     app.get('/v1/studyFy/aluno/:id', cors(), async function(request, response){
@@ -121,6 +103,94 @@ const bodyParserJSON = bodyParser.json()
        response.json(dadosAluno)
      })
 
+
+     //       --------------------   CRUD PROFESSORES  ---------------------        //
+
+
+    // -> EndPoint: Versão 2.0 - Retorna os dados de produtos do Banco de Dados
+    app.get('/v1/studyfy/professores', cors(), async function(request, response){
+
+        // -> Chama a função da controller para retornar todos os filmes
+        let dadosProfessores = await controllerProfessor.getListarProfessor()
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosProfessores.status_code)
+        response.json(dadosProfessores)
+    })
+
+    // // EndPoint: ele retorna os dados pelo id
+    app.get('/v1/studyFy/professor/:id', cors(), async function(request, response){
+
+        // Recebe o id da requisição
+        let idProfessor = request.params.id
+        // Encaminha o ID para a controller buscar o Filme
+        let dadosProfessores = await controllerProfessor.getBuscarProfessorId(idProfessor)
+
+        
+        response.status(dadosProfessores.status_code)
+        response.json(dadosProfessores)
+    })
+
+    // //EndPoint: Ele insere dados sobre o filme
+    app.post('/v1/studyFy/professores', cors(), bodyParserJSON, async function(request, response){
+
+        // Recebe o content-type da requisição
+        let contentType = request.headers['content-type']
+
+        //Recebe todos os dados encaminhados na requisição pelo Body
+        let dadosBody = request.body
+
+        //Encaminha os dados para a controller enviar para o DAO
+        let resultDadosNovoProfessor = await controllerProfessor.setInserirNovoProfessor(dadosBody, contentType)
+        
+        response.status(resultDadosNovoProfessor.status_code)
+        response.json(resultDadosNovoProfessor)
+    })
+
+     //EndPoint: Ele deleta os dados pelo id 
+    app.delete('/v1/studyFy/professores/:id', cors(), async function(request, response, next){
+        let idProfessor = request.params.id
+
+        let dadosProfessores = await controllerProfessor.setExcluirProfessor(idProfessor)
+
+        response.status(dadosProfessores.status_code)
+        response.json(dadosProfessores)
+    })
+
+     app.put('/v1/studyFy/professores/:id', cors(), bodyParserJSON, async function(request, response){
+         let contentType = request.headers['content-type']
+         let dadosBody = request.body
+         let idProfessor = request.params.id
+
+         let dadosProfessores = await controllerProfessor.setAtualizarProfessor(idProfessor, dadosBody, contentType)
+
+       response.status(dadosProfessores.status_code)
+       response.json(dadosProfessores)
+     })
+
+
+      //       --------------------   CRUD MATERIA  ---------------------        //
+
+      app.get('/v1/studyfy/materias', cors(), async function(request, response){
+
+        // -> Chama a função da controller para retornar todos os filmes
+        let dadosMaterias = await controllerMateria.getListarMaterias()
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosMaterias.status_code)
+        response.json(dadosMaterias)
+    })
+    
+    app.get('/v1/studyfy/alunos/materias/:id', cors(), async function(request, response){
+
+        let idAluno = request.params.id
+
+        let dadosMaterias = await controllerMateria.getListarMateriasByIdAluno(idAluno)
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosMaterias.status_code)
+        response.json(dadosMaterias)
+    })
 
 
      app.listen('8080', function(){

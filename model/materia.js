@@ -55,7 +55,6 @@ const selectMateriaByIdAluno = async function(id) {
         }
 }
 
-
 const selectMateriaByIdProfessor = async function(id) {
 
     try {
@@ -84,13 +83,109 @@ const selectMateriaByIdProfessor = async function(id) {
         }
 }
 
+const lastIDMateria = async function(){
+    try {
+        let sql = `SELECT id FROM tbl_materias ORDER BY id DESC LIMIT 1;`
+
+        let sqlID = await prisma.$queryRawUnsafe(sql)
+
+        return sqlID
+    } catch (error) {
+        return false
+    }
+    
+}
+
+const deleteMateria = async(id) =>{
+    try{
+
+        let sql = `delete from tbl_materias where id = ${id}`
+       
+    
+        //Executa o sql no banco de dados
+        let rsdeleteMateria = await prisma.$executeRawUnsafe(sql)
+
+    
+       return rsdeleteMateria
+    
+        } catch(error){
+            return false
+        }
+}
 
 
+const insertMateria = async function(dadosMaterias){
+    
+    try {
+    
+        let sql;
+
+         sql = `insert into tbl_materias ( 
+            nome_materia
+    ) values (
+                '${dadosMaterias.nome_materia}'
+    )`;
+   
+        let result = await prisma.$executeRawUnsafe(sql);
+        console.log(result);
+
+        if (result)
+            return true
+        else
+            return false;
+
+        } catch (error) {
+            return false 
+        }
+
+}
+
+const updateMateria = async function(id,dadosMaterias){
+    try{
+
+        let sql;
+
+        
+            sql = `UPDATE tbl_materias SET nome_materia = '${dadosMaterias.nome_materia}'
+                where tbl_materias.id = ${id};`
+        
+
+        let result = await prisma.$executeRawUnsafe(sql);
+        console.log(result)
+
+        if (result)
+            return result
+        else
+            return false;
+        
+    } catch (error) {
+        return false
+
+    }
+}
+
+const InsertByIdMateria = async function (){
+    try {
+        
+        let sql = `select cast(last_insert_id() AS DECIMAL) as id from tbl_materias limit 1`;
+        let rsMateria = await prisma.$queryRawUnsafe(sql);
+
+        return rsMateria;
+
+    } catch (error) {
+        return false        
+    }
+}
 
 
 module.exports ={
     selectAllMaterias,
     selectMateriaByIdAluno,
-    selectMateriaByIdProfessor
+    selectMateriaByIdProfessor,
+    lastIDMateria,
+    deleteMateria,
+    insertMateria,
+    updateMateria,
+    InsertByIdMateria
 }
 

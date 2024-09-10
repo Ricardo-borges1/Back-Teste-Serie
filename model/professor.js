@@ -58,16 +58,14 @@ const insertProfessor = async function(dadosProfessores) {
                             email,
                             senha,
                             telefone,
-                            data_nascimento,
-                            especializacao
+                            data_nascimento
                         ) 
          VALUES 
            ('${dadosProfessores.nome}',
            '${dadosProfessores.email}',
            '${dadosProfessores.senha}',
            '${dadosProfessores.telefone}',
-           '${dadosProfessores.data_nascimento}',
-           '${dadosProfessores.especializacao}'
+           '${dadosProfessores.data_nascimento}'        
            )`; 
            
            console.log(sql);
@@ -140,8 +138,7 @@ const updateProfessor = async function(id, dadosProfessores) {
                 email = '${dadosProfessores.email}',
                 senha = '${dadosProfessores.senha}',
                 telefone = '${dadosProfessores.telefone}',
-                data_nascimento = '${dadosProfessores.data_nascimento}',
-                especializacao = '${dadosProfessores.especializacao}'
+                data_nascimento = '${dadosProfessores.data_nascimento}'
             WHERE id = ${id};
         `;
         

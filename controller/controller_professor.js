@@ -1,7 +1,7 @@
 /*******************************************************
- * DATA: 05/09/2024
+ * DATA: 10/09/2024
  * Autor: Ricardo Borges
- * Versão: 1.1
+ * Versão: 1.2
 *******************************************************/
 
 // Importa as mensagens e os DAOs
@@ -53,7 +53,7 @@ const getListarProfessor = async function() {
                 let materiasProfessor = await materiaDAO.selectMateriaByIdProfessor(dadosProfessores[i].id);
                 let listaMateriasProfessores = materiasProfessor;
 
-                dadosProfessores[i].materias = listaMateriasProfessores;
+                dadosProfessores[i].especializacoes = listaMateriasProfessores;
             }
 
             console.log(dadosProfessores);
@@ -123,7 +123,6 @@ const setInserirNovoProfessor = async function(dadosProfessores, contentType) {
             dadosProfessores.telefone === '' || dadosProfessores.telefone === undefined || dadosProfessores.telefone === null || dadosProfessores.telefone.length > 12 ||
             dadosProfessores.senha === '' ||dadosProfessores.senha === undefined || dadosProfessores.senha === null || dadosProfessores.senha.length > 255 ||
             dadosProfessores.data_nascimento === '' ||dadosProfessores.data_nascimento === undefined || dadosProfessores.data_nascimento === null || dadosProfessores.data_nascimento.length !== 10 ||
-            dadosProfessores.especializacao === '' ||dadosProfessores.especializacao === undefined || dadosProfessores.especializacao === null || dadosProfessores.especializacao.length > 256 ||
                 !isValidDate(dadosProfessores.data_nascimento) ||
                 dadosProfessores.materia_id === '' || dadosProfessores.materia_id === undefined || dadosProfessores.materia_id === null || dadosProfessores.materia_id.length > 2
             ) {
@@ -191,7 +190,6 @@ const setAtualizarProfessor = async function(id, dadosProfessores, contentType) 
             dadosProfessores.telefone === '' || dadosProfessores.telefone === undefined || dadosProfessores.telefone === null || dadosProfessores.telefone.length > 12 ||
             dadosProfessores.senha === '' ||dadosProfessores.senha === undefined || dadosProfessores.senha === null || dadosProfessores.senha.length > 255 ||
             dadosProfessores.data_nascimento === '' ||dadosProfessores.data_nascimento === undefined || dadosProfessores.data_nascimento === null || dadosProfessores.data_nascimento.length !== 10 ||
-            dadosProfessores.especializacao === '' ||dadosProfessores.especializacao === undefined || dadosProfessores.especializacao === null || dadosProfessores.especializacao.length > 256 ||
                 !isValidDate(dadosProfessores.data_nascimento) ||
                 dadosProfessores.materia_id === '' || dadosProfessores.materia_id === undefined || dadosProfessores.materia_id === null || dadosProfessores.materia_id.length > 2
             ) {
@@ -231,5 +229,6 @@ module.exports = {
     getBuscarProfessorId,
     setInserirNovoProfessor,
     setAtualizarProfessor,
+    setExcluirProfessor
     
 };
