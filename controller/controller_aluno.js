@@ -8,6 +8,7 @@
 const message = require('./modulo/config.js');
 const alunoDAO = require('../model/aluno.js');
 const materiaDAO = require('../model/materia.js');
+const mentorDAO = require ('../model/mentor.js')
 
 // Função auxiliar para validar a data de nascimento
 function isValidDate(dateString) {
@@ -40,6 +41,32 @@ function isValidDate(dateString) {
     return true;
 }
 
+const getListarAlunosMentores = async function(id) {
+    try {
+        // Criar o objeto JSON
+        let alunosMentoresJSON = {};
+        
+        // Chamar a função do DAO para retornar os dados da tabela de produtos
+        
+        let dadosAlunosMentores = await mentorDAO.selectAlunoMentorById(id);
+
+        // Validação para verificar se existem dados 
+        if (dadosAlunosMentores) {
+            // Criar o JSON para devolver para o APP
+            alunosMentoresJSON.mentores = dadosAlunosMentores;
+            alunosMentoresJSON.quantidade = dadosAlunosMentores.length;
+            alunosMentoresJSON.status_code = 200;
+            return alunosMentoresJSON;
+        } else {
+            return message.ERROR_NOT_FOUND;
+        } 
+    } catch (error) {
+        console.log(error);
+        return message.ERROR_INTERNAL_SERVER;
+    }
+}
+
+
 // Função para listar alunos
 const getListarAluno = async function() {
     try {
@@ -48,6 +75,7 @@ const getListarAluno = async function() {
 
         if (dadosAlunos) {
             for (let i = 0; i < dadosAlunos.length; i++) {
+
                 console.log(dadosAlunos[i]);
 
                 let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
@@ -55,8 +83,6 @@ const getListarAluno = async function() {
 
                 dadosAlunos[i].materias = listaMateriasAluno;
             }
-
-            console.log(dadosAlunos);
             
             alunoJSON.aluno = dadosAlunos;
             alunoJSON.quantidade = dadosAlunos.length;
@@ -234,5 +260,6 @@ module.exports = {
     getBuscarAlunoId,
     setInserirNovoAluno,
     setAtualizarAluno,
-    setExcluirAluno
+    setExcluirAluno,
+    getListarAlunosMentores
 };

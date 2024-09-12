@@ -30,6 +30,7 @@ app.use((request, response, next) =>{
 const controllerAluno = require('./controller/controller_aluno.js')
 const controllerMateria = require('./controller/controller_materia.js')
 const controllerProfessor = require ('./controller/controller_professor.js')
+const controllerMentor = require ('./controller/controller_mentor.js')
 
 /*******************************************************************************************************/
 
@@ -235,7 +236,41 @@ const bodyParserJSON = bodyParser.json()
     })
 
 
+ //       --------------------   CRUD MENTOR  ---------------------        //
 
+
+
+ app.get('/v1/studyfy/mentor', cors(), async function(request, response){
+
+        // -> Chama a função da controller para retornar todos os filmes
+        let dadosMentor = await controllerMentor.getListarMentores()
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosMentor.status_code)
+        response.json(dadosMentor)
+    })
+
+    app.get('/v1/studyfy/aluno/mentor/:id', cors(), async function(request, response){
+
+        let idAlunoMentor = request.params.id
+
+        let dadosAlunosMentores = await controllerAluno.getListarAlunosMentores(idAlunoMentor)
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosAlunosMentores.status_code)
+        response.json(dadosAlunosMentores)
+    })
+
+    app.get('/v1/studyfy/professor/mentor/:id', cors(), async function(request, response){
+
+        let idProfessorMentor = request.params.id
+
+        let dadosProfessoresMentores = await controllerProfessor.getListarProfessoresMentores(idProfessorMentor)
+
+        // -> validação para verificar se existem dados a serem retornados
+        response.status(dadosProfessoresMentores.status_code)
+        response.json(dadosProfessoresMentores)
+    })
 
 
   

@@ -8,6 +8,7 @@
 const message = require('./modulo/config.js');
 const professorDAO = require('../model/professor.js');
 const materiaDAO = require('../model/materia.js');
+const mentorDAO = require ('../model/mentor.js')
 
 // Função auxiliar para validar a data de nascimento
 function isValidDate(dateString) {
@@ -70,6 +71,32 @@ const getListarProfessor = async function() {
         return message.ERROR_INTERNAL_SERVER;
     }
 };
+
+const getListarProfessoresMentores = async function(id) {
+    try {
+        // Criar o objeto JSON
+        let professoresMentoresJSON = {};
+        
+        // Chamar a função do DAO para retornar os dados da tabela de produtos
+        
+        let dadosProfessoresMentores = await mentorDAO.selectProfessorMentorById(id);
+
+        // Validação para verificar se existem dados 
+        if (dadosProfessoresMentores) {
+            // Criar o JSON para devolver para o APP
+            professoresMentoresJSON.mentores = dadosProfessoresMentores;
+            professoresMentoresJSON.quantidade = dadosProfessoresMentores.length;
+            professoresMentoresJSON.status_code = 200;
+            return professoresMentoresJSON;
+        } else {
+            return message.ERROR_NOT_FOUND;
+        } 
+    } catch (error) {
+        console.log(error);
+        return message.ERROR_INTERNAL_SERVER;
+    }
+}
+
 
 // Função para buscar aluno por ID
 const getBuscarProfessorId = async function(id) {
@@ -229,6 +256,7 @@ module.exports = {
     getBuscarProfessorId,
     setInserirNovoProfessor,
     setAtualizarProfessor,
-    setExcluirProfessor
+    setExcluirProfessor,
+    getListarProfessoresMentores
     
 };
