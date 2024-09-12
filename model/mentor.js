@@ -41,7 +41,7 @@ FROM
 JOIN 
     tbl_alunos AS alunos ON aluno_mentor.aluno_id = alunos.id
 JOIN 
-    tbl_mentor AS mentores ON aluno_mentor.mentor_id = ${id};`
+    tbl_mentor AS mentores ON aluno_mentor.mentor_id = mentores.id;`
 
         // Executa no banco de dados o script sql
         let rsMentor = await prisma.$queryRawUnsafe(sql);
@@ -73,7 +73,7 @@ const selectProfessorMentorById = async function(id) {
         JOIN
          tbl_professor AS professores ON professor_mentor.professor_id = professores.id
 JOIN 
-    tbl_mentor AS mentores ON professor_mentor.mentor_id = ${id};`
+    tbl_mentor AS mentores ON professor_mentor.mentor_id = mentores.id ;`
 
         // Executa no banco de dados o script sql
         let rsMentor = await prisma.$queryRawUnsafe(sql);
