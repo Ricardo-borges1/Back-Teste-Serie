@@ -13,8 +13,24 @@ const prisma = new PrismaClient()
 
 const selectAllMentores = async function(){
     try {
-        let sql = `select * from tbl_mentor`;
-
+        let sql = `SELECT
+  m.id AS mentor_id,
+  m.data_ingresso,
+  CASE
+    WHEN NOT EXISTS (SELECT 1 FROM tbl_aluno_mentor am WHERE am.mentor_id = m.id)
+         AND EXISTS (SELECT 1 FROM tbl_professor_mentor pm WHERE pm.mentor_id = m.id) THEN 'Professor'
+    WHEN EXISTS (SELECT 1 FROM tbl_aluno_mentor am WHERE am.mentor_id = m.id) THEN 'Aluno'
+    ELSE 'Outro'
+  END AS tipo_mentor,
+  COALESCE(
+    (SELECT a.nome FROM tbl_alunos a WHERE am.aluno_id = a.id),
+    (SELECT p.nome FROM tbl_professor p WHERE pm.professor_id = p.id)
+  ) AS nome_associado
+FROM
+  tbl_mentor m
+LEFT JOIN tbl_professor_mentor pm ON m.id = pm.mentor_id
+LEFT JOIN tbl_aluno_mentor am ON m.id = am.mentor_id;
+`;
         // Executa no banco de dados o script sql
         let rsMentor= await prisma.$queryRawUnsafe(sql);
 

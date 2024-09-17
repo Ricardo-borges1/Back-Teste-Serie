@@ -10,7 +10,7 @@ const professorDAO = require('../model/professor.js');
 const materiaDAO = require('../model/materia.js');
 const mentorDAO = require ('../model/mentor.js')
 
-// Função auxiliar para validar a data de nascimento
+// Função auxiliar para validar a data de nascimentP
 function isValidDate(dateString) {
 
     // Verifica se a data está no formato YYYY-MM-DD
