@@ -304,15 +304,12 @@ VALUES
 -- Inserir dados na tabela tbl_professor_mentor
 INSERT INTO tbl_professor_mentor (professor_id, mentor_id) 
 VALUES 
-(2, 2);
-
-INSERT INTO tbl_professor_mentor (professor_id, mentor_id)
-VALUES (5, 5);
+(5, 5);
 
 -- Inserir dados na tabela tbl_aluno_mentor
 INSERT INTO tbl_aluno_mentor (aluno_id, mentor_id) 
 VALUES 
-(3, 3);
+(4, 4);
 
 
 DELETE FROM tbl_aluno_mentor
@@ -333,7 +330,7 @@ FROM
 JOIN 
     tbl_alunos AS alunos ON aluno_mentor.aluno_id = alunos.id
 JOIN 
-    tbl_mentor AS mentores ON aluno_mentor.mentor_id = 1;
+    tbl_mentor AS mentores ON aluno_mentor.mentor_id = 3;
 
 
 -- Verifique se há registros duplicados na tabela tbl_alunos
@@ -349,6 +346,28 @@ SELECT aluno_id, COUNT(*) AS num_associacoes
 FROM tbl_aluno_mentor
 WHERE mentor_id = 2
 GROUP BY aluno_id;
+
+
+
+SELECT 
+    m.id AS membro_id,
+    a.id AS aluno_id,
+    a.nome AS aluno_nome,
+    a.email AS aluno_email,
+    a.telefone AS aluno_telefone,
+    a.data_nascimento AS aluno_data_nascimento,
+    a.serie AS aluno_serie,
+    g.id AS grupo_mentoria_id,
+    g.nome AS grupo_mentoria_nome
+FROM 
+    tbl_membros m
+INNER JOIN 
+    tbl_alunos a ON m.aluno_id = a.id
+INNER JOIN 
+    tbl_grupo_mentoria g ON m.grupo_mentoria_id = g.id
+WHERE 
+    g.id = 1;
+
 
 ---------------------------------------------------------------------------------------
 
@@ -519,7 +538,9 @@ JOIN
     
     select * from tbl_mentor;
 
+delete from tbl_alunos where id = 5;
 
+select * from tbl_grupo_mentoria;
 
 -------------------------------------------------------------------------------------
 
