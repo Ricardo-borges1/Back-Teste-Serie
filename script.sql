@@ -304,23 +304,24 @@ VALUES
 -- Inserir dados na tabela tbl_professor_mentor
 INSERT INTO tbl_professor_mentor (professor_id, mentor_id) 
 VALUES 
-(3, 3);
+(2, 2);
+
+INSERT INTO tbl_professor_mentor (professor_id, mentor_id)
+VALUES (5, 5);
 
 -- Inserir dados na tabela tbl_aluno_mentor
 INSERT INTO tbl_aluno_mentor (aluno_id, mentor_id) 
 VALUES 
-(1, 1);
-
-
+(3, 3);
 
 
 DELETE FROM tbl_aluno_mentor
 WHERE aluno_id =1;
 
 
-select * from tbl_aluno_mentor where mentor_id = 3;
+select * from tbl_aluno_mentor where mentor_id = 2;
 
-select * from tbl_mentor;
+select * from tbl_professor;
 
 SELECT 
     alunos.id AS aluno_id,
@@ -365,21 +366,18 @@ UPDATE tbl_alunos
             WHERE id = 4;
 
 
-SELECT 
-    m.id AS id, 
-    m.nome_materia AS materia
-FROM 
-    tbl_alunos a
-JOIN 
-    tbl_alunos_materias am ON a.id = am.aluno_id
-JOIN 
-    tbl_materias m ON am.materia_id = m.id
-WHERE 
-    a.id = 6;
     
     
+  SELECT
+  pm.mentor_id,
+   -- Corrige para o nome real da coluna
+  m.data_ingresso
+FROM tbl_professor_mentor pm
+INNER JOIN tbl_mentor m ON pm.mentor_id = m.id
+LIMIT 0, 1000;
     
-    
+    UPDATE tbl_professor_mentor
+SET mentor_id = NULL;
     
     
 
@@ -393,10 +391,40 @@ JOIN
 JOIN 
     tbl_materias m ON am.materia_id = m.id
 WHERE 
-    a.id = 6;
+    a.id = 1;
     
     
-    
+    select * from tbl_professor_mentor;
+ 
+ 
+ 
+-- SELECT PARA VOLTAR TODOS OS MENTORES E AS INFORMACOES DELE
+SELECT
+  m.id AS mentor_id,
+  m.data_ingresso,
+  CASE
+    WHEN NOT EXISTS (SELECT 1 FROM tbl_aluno_mentor am WHERE am.mentor_id = m.id)
+         AND EXISTS (SELECT 1 FROM tbl_professor_mentor pm WHERE pm.mentor_id = m.id) THEN 'Professor'
+    WHEN EXISTS (SELECT 1 FROM tbl_aluno_mentor am WHERE am.mentor_id = m.id) THEN 'Aluno'
+    ELSE 'Outro'
+  END AS tipo_mentor,
+  COALESCE(
+    (SELECT a.nome FROM tbl_alunos a WHERE am.aluno_id = a.id),
+    (SELECT p.nome FROM tbl_professor p WHERE pm.professor_id = p.id)
+  ) AS nome_associado
+FROM
+  tbl_mentor m
+LEFT JOIN tbl_professor_mentor pm ON m.id = pm.mentor_id
+LEFT JOIN tbl_aluno_mentor am ON m.id = am.mentor_id;
+
+
+
+
+
+
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM tbl_mentor WHERE mentor_id IN (2);
+SET FOREIGN_KEY_CHECKS = 1;
     
     
     
@@ -429,7 +457,7 @@ WHERE id = 1;
 SELECT * FROM tbl_alunos;
 
 
-
+-- SELECT QUE TRAS OS TODOS OS MENTORES alunos
 
 SELECT 
     alunos.id AS aluno_id,
@@ -443,6 +471,9 @@ JOIN
 JOIN 
     tbl_mentor AS mentores ON aluno_mentor.mentor_id = mentores.id;
     
+    
+    -- SELECT QUE TRAS OS MENTORES ALUNOS POR ID
+    
     SELECT 
     COUNT(*) AS is_mentor
 FROM 
@@ -453,6 +484,8 @@ JOIN
     tbl_mentor AS mentores ON aluno_mentor.mentor_id = mentores.id
 WHERE 
     alunos.id = 1;
+    
+    
     
 SELECT 
     alunos.id AS aluno_id,
