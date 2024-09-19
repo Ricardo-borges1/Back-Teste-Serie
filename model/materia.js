@@ -28,7 +28,7 @@ const selectAllMaterias = async function(){
 
 const selectMateriaByIdAluno = async function(id) {
 
-    console.log(id);
+    console.log('pitoco esteve aqui' + id);
     try {
         let sql = `   SELECT 
         m.id AS id, 

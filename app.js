@@ -33,6 +33,8 @@ const controllerProfessor = require ('./controller/controller_professor.js')
 const controllerMentor = require ('./controller/controller_mentor.js')
 const controllerGrupoMentoria = require ('./controller/controller_grupoMentoria.js')
 const controllerMembros = require ('./controller/controller_membros.js')
+// Importa a controller de séries
+const controllerSerie = require('./controller/controller_serie.js');
 
 /*******************************************************************************************************/
 
@@ -413,3 +415,86 @@ app.get('/v1/studyfy/membros/mentor', cors(), async function(request, response) 
         response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
     }
 });
+
+
+// --------------------   CRUD SÉRIES  ---------------------
+
+// Endpoint: Retorna todas as séries
+app.get('/v1/studyfy/series', async function(request, response) {
+    try {
+        let dadosSeries = await controllerSerie.getListarSeries();
+        
+        response.status(dadosSeries.status_code);
+        response.json(dadosSeries);
+    } catch (error) {
+        console.error('Erro ao listar séries:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+// Endpoint: Retorna uma série pelo ID
+app.get('/v1/studyfy/serie/:id', async function(request, response) {
+    try {
+        let idSerie = request.params.id;
+        let dadosSerie = await controllerSerie.getBuscarSerieId(idSerie);
+        
+        response.status(dadosSerie.status_code);
+        response.json(dadosSerie);
+    } catch (error) {
+        console.error('Erro ao buscar série:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+app.post('/v1/studyfy/series', cors(), bodyParserJSON, async function(request, response) {
+    try {
+        let contentType = request.headers['content-type'];
+        let dadosBody = request.body; // Aqui você deve obter os dados do corpo da requisição
+        console.log('eeeeeeeeeeeee: ' + dadosBody);
+        
+        
+        console.log('Dados recebidos:', dadosBody); // Verifique se está recebendo os dados corretamente
+        
+        let resultDadosNovaSerie = await controllerSerie.setInserirNovaSerie(dadosBody, contentType);
+        
+        response.status(resultDadosNovaSerie.status_code);
+        response.json(resultDadosNovaSerie);
+    } catch (error) {
+        console.error('Erro ao inserir nova série:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+
+// Endpoint: Deleta uma série pelo ID
+app.delete('/v1/studyfy/series/:id', async function(request, response) {
+    try {
+        let idSerie = request.params.id;
+        let dadosSerie = await controllerSerie.setExcluirSerie(idSerie);
+        
+        response.status(dadosSerie.status_code);
+        response.json(dadosSerie);
+    } catch (error) {
+        console.error('Erro ao excluir série:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+// Endpoint: Atualiza um grupo de mentoria pelo ID
+app.put('/v1/studyfy/series/:id', cors(), bodyParserJSON, async function(request, response) {
+    try {
+        let contentType = request.headers['content-type'];
+        let dadosBody = request.body;
+        let idSerie = request.params.id;
+        
+        let dadosSerie = await controllerSerie.setAtualizarSerie(idSerie, dadosBody, contentType);
+        
+        response.status(dadosSerie .status_code);
+        response.json(dadosSerie );
+    } catch (error) {
+        console.error('Erro ao atualizar grupo de mentoria:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+

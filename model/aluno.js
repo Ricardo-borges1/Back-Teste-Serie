@@ -14,7 +14,19 @@ const prisma = new PrismaClient()
 const selectAlunobyID = async function(id){
     try {
         // Realiza a busca do genero pelo ID
-        let sql = `select * from tbl_alunos where id = ${id}`;
+        let sql = `SELECT 
+    a.id AS aluno_id,
+    a.nome AS aluno_nome,
+    a.email AS aluno_email,
+    a.data_nascimento AS aluno_data_nascimento,
+    a.telefone AS aluno_telefone,
+    s.nome AS serie_nome
+FROM 
+    tbl_alunos a
+LEFT JOIN 
+    tbl_series s ON a.serie = s.id
+WHERE 
+    a.id = ${id}`;
 
         // Executa no banco de dados o script sql
         let rsAluno= await prisma.$queryRawUnsafe(sql);
@@ -32,7 +44,20 @@ const selectAlunobyID = async function(id){
 const selectAllAlunos = async function(){
     try {
         // Realiza a busca do genero pelo ID
-        let sql = `select * from tbl_alunos where id > 0`;
+        let sql = `SELECT 
+    tbl_alunos.id AS aluno_id,
+    tbl_alunos.nome AS aluno_nome,
+    tbl_alunos.email,
+    tbl_alunos.senha,
+    tbl_alunos.data_nascimento,
+    tbl_alunos.telefone,
+    tbl_alunos.serie,
+    tbl_series.nome AS serie_nome
+FROM 
+    tbl_alunos
+LEFT JOIN 
+    tbl_series ON tbl_alunos.serie = tbl_series.id;
+`;
 
         // Executa no banco de dados o script sql
         let rsAluno= await prisma.$queryRawUnsafe(sql);
@@ -49,121 +74,42 @@ const selectAllAlunos = async function(){
 
 const insertAluno = async function(dadosAluno) {
     try {
-        let sql
+        let sql = `INSERT INTO tbl_alunos (
+                        nome,
+                        email,
+                        senha,
+                        telefone,
+                        data_nascimento,
+                        serie
+                    ) 
+                    VALUES (
+                        '${dadosAluno.nome}',
+                        '${dadosAluno.email}',
+                        '${dadosAluno.senha}',
+                        '${dadosAluno.telefone}',
+                        '${dadosAluno.data_nascimento}',
+                        ${dadosAluno.serie}
+                    )`;
 
-         sql = ` INSERT INTO tbl_alunos (
-                            nome,
-                            email,
-                            senha,
-                            telefone,
-                            data_nascimento,
-                            serie
-                        ) 
-         VALUES 
-           ('${dadosAluno.nome}',
-           '${dadosAluno.email}',
-           '${dadosAluno.senha}',
-           '${dadosAluno.telefone}',
-           '${dadosAluno.data_nascimento}',
-           '${dadosAluno.serie}'
-           )`; 
-
-           console.log(sql);
-
-        let result = await prisma.$executeRawUnsafe(sql);
-        
-        if (result){
-
-            let lastID=await lastIDAluno()
-            for (let aluno of dadosAluno.materia_id) {
-
-                // Verificar se a combinação já existe
-                let checkSql = `SELECT * FROM tbl_alunos_materias 
-                                WHERE aluno_id = ${lastID[0].id} AND materia_id = ${aluno};`;
-
-                let insert = await prisma.$queryRawUnsafe(checkSql);
-
-                if (insert.length === 0) {
-                    // Se não existe, insere
-                    sql = `INSERT INTO tbl_alunos_materias (
-                        aluno_id, 
-                        materia_id
-                    ) VALUES (
-                        ${lastID[0].id},
-                        ${aluno}
-                    );`;
-
-                    let insertResult = await prisma.$executeRawUnsafe(sql);
-
-                    if (!insertResult) {
-                        return false;
-                    }
-                }
-            }
-
-            return result;
-        } else {
-            return false;
-        }
-
-    } catch (error) {
-        console.log(error);
-        return false;
-    }
-}
-
-
-
-const updateAluno = async function(id, dadosAluno) {
-    try {
-        // Atualiza os dados do aluno na tabela tbl_alunos
-        let sql = `
-            UPDATE tbl_alunos
-            SET 
-                nome = '${dadosAluno.nome}',
-                email = '${dadosAluno.email}',
-                senha = '${dadosAluno.senha}',
-                telefone = '${dadosAluno.telefone}',
-                data_nascimento = '${dadosAluno.data_nascimento}',
-                serie = '${dadosAluno.serie}'
-            WHERE id = ${id};
-        `;
-        
-        console.log(sql);
-
+        // Executa o SQL para inserir o aluno
         let result = await prisma.$executeRawUnsafe(sql);
 
         if (result) {
-            // Verifica se todas as matérias existem
-            for (let materia of dadosAluno.materia_id) {
-                let checkMateriaSql = `SELECT COUNT(*) AS count FROM tbl_materias WHERE id = ${materia};`;
-                let countResult = await prisma.$queryRawUnsafe(checkMateriaSql);
-                if (countResult[0].count === 0) {
-                    console.log(`Erro: Matéria com ID ${materia} não encontrada.`);
-                    return false;
-                }
-            }
+            // Obtém o ID do último aluno inserido
+            let lastID = await lastIDAluno();
+            
+            // Insere as matérias associadas
+            for (let materiaId of dadosAluno.materia_id) {
+                let insertMateriaSql = `INSERT INTO tbl_alunos_materias (
+                                            aluno_id,
+                                            materia_id
+                                        ) 
+                                        VALUES (
+                                            ${lastID[0].id},
+                                            ${materiaId}
+                                        )`;
 
-            // Remove todas as associações antigas de matérias para o aluno
-            sql = `DELETE FROM tbl_alunos_materias WHERE aluno_id = ${id};`;
-            result = await prisma.$executeRawUnsafe(sql);
-
-            if (!result) {
-                return false;
-            }
-
-            // Adiciona as novas associações de matérias
-            for (let materia of dadosAluno.materia_id) {
-                sql = `
-                    INSERT INTO tbl_alunos_materias (aluno_id, materia_id)
-                    VALUES (${id}, ${materia});
-                `;
-                
-                let insertResult = await prisma.$executeRawUnsafe(sql);
-
-                if (!insertResult) {
-                    return false;
-                }
+                await prisma.$executeRawUnsafe(insertMateriaSql);
             }
 
             return result;
@@ -213,8 +159,8 @@ module.exports ={
     selectAlunobyID,
     lastIDAluno,
     deleteAluno,
-    insertAluno,
-    updateAluno
+    insertAluno
+    
 
 }
 

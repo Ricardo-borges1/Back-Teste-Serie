@@ -114,16 +114,19 @@ const getListarAluno = async function() {
         let alunoJSON = {};
         let dadosAlunos = await alunoDAO.selectAllAlunos();
 
+        console.log('penis', dadosAlunos[1]);
+        
         if (dadosAlunos) {
             for (let i = 0; i < dadosAlunos.length; i++) {
-                console.log(dadosAlunos[i]);
+                console.log( 'pinto' + dadosAlunos[i].aluno_id);
 
-                let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
-                let listaMateriasAluno = materiasAluno;
-
-                // Adicione um log para verificar o formato da data
-                console.log('Data original:', dadosAlunos[i].data_nascimento);
+                let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].aluno_id);
                 
+                // Logando o retorno das matérias
+                console.log('Matérias do aluno:', materiasAluno);
+                
+                let listaMateriasAluno = materiasAluno || []; // Previne que seja undefined
+                            
                 // Formatar a data de nascimento
                 dadosAlunos[i].data_nascimento = formatarData(dadosAlunos[i].data_nascimento);
                 dadosAlunos[i].materias = listaMateriasAluno;
@@ -144,6 +147,7 @@ const getListarAluno = async function() {
 
 
 
+
 // Função para buscar aluno por ID
 const getBuscarAlunoId = async function(id) {
     try {
@@ -160,7 +164,7 @@ const getBuscarAlunoId = async function(id) {
                     for (let i = 0; i < dadosAlunos.length; i++) {
                         console.log(dadosAlunos[i]);
 
-                        let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
+                        let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].aluno_id);
                         let listaMateriasAluno = materiasAluno;
 
                         dadosAlunos[i].materias = listaMateriasAluno;
@@ -181,32 +185,25 @@ const getBuscarAlunoId = async function(id) {
         return message.ERROR_INTERNAL_SERVER;
     }
 };
-
 // Função para inserir novo aluno
 const setInserirNovoAluno = async function(dadosAluno, contentType) {
     try {
         if (String(contentType).toLowerCase() === 'application/json') {
             let alunoJSON = {};
 
-            console.log('oi');
-
             // Validação de campos obrigatórios ou com digitação inválida
-            if (dadosAluno.nome === '' || dadosAluno.nome === undefined || dadosAluno.nome === null || dadosAluno.nome.length > 100 ||
-                dadosAluno.email === '' || dadosAluno.email === undefined || dadosAluno.email === null || dadosAluno.email.length > 100 ||
-                dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
-                dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
-                dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length !== 10 ||
-                dadosAluno.serie === '' || dadosAluno.serie === undefined || dadosAluno.serie === null || dadosAluno.serie.length > 20 ||
+            if (
+                !dadosAluno.nome || dadosAluno.nome.length > 100 ||
+                !dadosAluno.email || dadosAluno.email.length > 100 ||
+                !dadosAluno.telefone || dadosAluno.telefone.length > 12 ||
+                !dadosAluno.senha || dadosAluno.senha.length > 255 ||
+                !dadosAluno.data_nascimento || dadosAluno.data_nascimento.length !== 10 ||
+                !dadosAluno.serie || dadosAluno.serie.length > 20 ||
                 !isValidDate(dadosAluno.data_nascimento) ||
-                dadosAluno.materia_id === '' || dadosAluno.materia_id === undefined || dadosAluno.materia_id === null || dadosAluno.materia_id.length > 5
+                !dadosAluno.materia_id || dadosAluno.materia_id.length > 5
             ) {
                 return message.ERROR_REQUIRED_FIELDS;
-
             } else {
-
-                console.log(dadosAluno.materia_id);
-                
-
                 let novoAluno = await alunoDAO.insertAluno(dadosAluno);
                 
                 if (novoAluno) {
@@ -227,6 +224,7 @@ const setInserirNovoAluno = async function(dadosAluno, contentType) {
             return message.ERROR_CONTENT_TYPE; // 415
         }
     } catch (error) {
+        console.error(error);
         return message.ERROR_INTERNAL_SERVER; // 500
     }
 };
@@ -236,7 +234,7 @@ const setExcluirAluno = async function(id) {
     try {
         let idAluno = id;
 
-        if (idAluno === '' || idAluno === undefined || isNaN(idAluno)) {
+        if (!idAluno || isNaN(idAluno)) {
             return message.ERROR_INVALID_ID; // 400
         } else {
             let alunoDeletado = await alunoDAO.deleteAluno(idAluno);
@@ -248,6 +246,7 @@ const setExcluirAluno = async function(id) {
             }
         }
     } catch (error) {
+        console.error(error);
         return message.ERROR_INTERNAL_SERVER; // 500
     }
 };
@@ -257,18 +256,19 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
     try {
         let idAluno = id;
 
-        if (idAluno === '' || idAluno === undefined || isNaN(idAluno) || idAluno === null) {
+        if (!idAluno || isNaN(idAluno) || idAluno === null) {
             return message.ERROR_INVALID_ID;
         } else {
             if (String(contentType).toLowerCase() === 'application/json') {
                 let updateAlunoJSON = {};
                 
-                if (dadosAluno.nome === '' || dadosAluno.nome === undefined || dadosAluno.nome === null || dadosAluno.nome.length > 100 ||
-                    dadosAluno.email === '' || dadosAluno.email === undefined || dadosAluno.email === null || dadosAluno.email.length > 100 ||
-                    dadosAluno.telefone === '' || dadosAluno.telefone === undefined || dadosAluno.telefone === null || dadosAluno.telefone.length > 12 ||
-                    dadosAluno.senha === '' || dadosAluno.senha === undefined || dadosAluno.senha === null || dadosAluno.senha.length > 255 ||
-                    dadosAluno.serie === '' || dadosAluno.serie === undefined || dadosAluno.serie === null || dadosAluno.serie.length > 20 ||
-                    dadosAluno.data_nascimento === '' || dadosAluno.data_nascimento === undefined || dadosAluno.data_nascimento === null || dadosAluno.data_nascimento.length > 10 ||
+                if (
+                    !dadosAluno.nome || dadosAluno.nome.length > 100 ||
+                    !dadosAluno.email || dadosAluno.email.length > 100 ||
+                    !dadosAluno.telefone || dadosAluno.telefone.length > 12 ||
+                    !dadosAluno.senha || dadosAluno.senha.length > 255 ||
+                    !dadosAluno.serie || dadosAluno.serie.length > 20 ||
+                    !dadosAluno.data_nascimento || dadosAluno.data_nascimento.length > 10 ||
                     !isValidDate(dadosAluno.data_nascimento)
                 ) {
                     return message.ERROR_REQUIRED_FIELDS;
@@ -276,9 +276,9 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
                     let alunoById = await alunoDAO.selectAlunobyID(id);
 
                     if (alunoById.length > 0) {
-                        let uptadeAluno = await alunoDAO.updateAluno(id, dadosAluno);
+                        let updateAluno = await alunoDAO.updateAluno(id, dadosAluno);
                         
-                        if (uptadeAluno) {
+                        if (updateAluno) {
                             updateAlunoJSON.aluno = dadosAluno;
                             updateAlunoJSON.status = message.SUCCESS_UPDATED_ITEM.status;
                             updateAlunoJSON.status_code = message.SUCCESS_UPDATED_ITEM.status_code;
@@ -286,20 +286,22 @@ const setAtualizarAluno = async function(id, dadosAluno, contentType) {
                             
                             return updateAlunoJSON;
                         } else {
-                            return message.ERROR_INTERNAL_SERVER_DB;
+                            return message.ERROR_INTERNAL_SERVER_DB; // 500
                         }
                     } else {
-                        return message.ERROR_NOT_FOUND;
+                        return message.ERROR_NOT_FOUND; // 404
                     }
                 }
             } else {
-                return message.ERROR_CONTENT_TYPE;
+                return message.ERROR_CONTENT_TYPE; // 415
             }
         }
     } catch (error) {
-        return message.ERROR_INTERNAL_SERVER;
+        console.error(error);
+        return message.ERROR_INTERNAL_SERVER; // 500
     }
 };
+
 
 // Exporta as funções
 module.exports = {
