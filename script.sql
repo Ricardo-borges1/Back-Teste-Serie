@@ -573,3 +573,20 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+------------------------------------------------------------
+--LEMBRAR
+
+CREATE TABLE tbl_series (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tbl_grupos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    serie_minima INT,
+    serie_maxima INT,
+    FOREIGN KEY (serie_minima) REFERENCES tbl_series(id),
+    FOREIGN KEY (serie_maxima) REFERENCES tbl_series(id)
+);
