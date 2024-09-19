@@ -87,7 +87,27 @@ const getListarAlunosMentores = async function(id) {
     }
 }
 
+// Função para formatar a data
+function formatarData(data) {
+    if (!data) return null; // Se data for falsy, retorna null
 
+    // Verifica se data é um objeto Date
+    if (data instanceof Date) {
+        return data.toISOString().split('T')[0]; // Converte para string no formato ISO
+    }
+
+    // Se data for uma string, continua o processamento
+    if (typeof data === 'string') {
+        const partes = data.split('T')[0]; // Separa a data da hora
+        return partes; // Retorna apenas a parte da data
+    }
+
+    return null; // Se não for string nem objeto Date, retorna null
+}
+
+
+
+// Função para listar alunos
 // Função para listar alunos
 const getListarAluno = async function() {
     try {
@@ -96,12 +116,16 @@ const getListarAluno = async function() {
 
         if (dadosAlunos) {
             for (let i = 0; i < dadosAlunos.length; i++) {
-
                 console.log(dadosAlunos[i]);
 
                 let materiasAluno = await materiaDAO.selectMateriaByIdAluno(dadosAlunos[i].id);
                 let listaMateriasAluno = materiasAluno;
 
+                // Adicione um log para verificar o formato da data
+                console.log('Data original:', dadosAlunos[i].data_nascimento);
+                
+                // Formatar a data de nascimento
+                dadosAlunos[i].data_nascimento = formatarData(dadosAlunos[i].data_nascimento);
                 dadosAlunos[i].materias = listaMateriasAluno;
             }
             
@@ -117,6 +141,8 @@ const getListarAluno = async function() {
         return message.ERROR_INTERNAL_SERVER;
     }
 };
+
+
 
 // Função para buscar aluno por ID
 const getBuscarAlunoId = async function(id) {
