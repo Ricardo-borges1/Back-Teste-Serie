@@ -1,4 +1,12 @@
 {
+  "name": "back-studyfy",
+  "version": "1.0.0",
+  "description": "aplicativo educacional",
+  "main": "app.js",
+  "scripts": {
+    "build": "npm install",
+    "start": "node app.js"
+  },
   "dependencies": {
     "@prisma/client": "^5.19.1",
     "bcrypt": "^5.1.1",

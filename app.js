@@ -32,6 +32,7 @@ const controllerMateria = require('./controller/controller_materia.js')
 const controllerProfessor = require ('./controller/controller_professor.js')
 const controllerMentor = require ('./controller/controller_mentor.js')
 const controllerGrupoMentoria = require ('./controller/controller_grupoMentoria.js')
+const controllerMembros = require ('./controller/controller_membros.js')
 
 /*******************************************************************************************************/
 
@@ -361,3 +362,21 @@ app.put('/v1/studyfy/mentorias/:id', cors(), bodyParserJSON, async function(requ
 });
 
   
+
+
+// --------------------   CRUD DE MEMBROS  --------------------- 
+
+
+app.get('/v1/studyfy/membros', cors(), async function(request, response) {
+    try {
+        // Chama a função da controller para retornar todos os grupos de mentoria
+        let dadosMembros = await controllerMembros.getListarMembros();
+        
+        // Validação para verificar se existem dados a serem retornados
+        response.status(dadosMembros.status_code);
+        response.json(dadosMembros);
+    } catch (error) {
+        console.error('Erro ao listar os membros:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
