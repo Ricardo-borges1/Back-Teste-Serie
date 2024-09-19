@@ -276,7 +276,7 @@ const bodyParserJSON = bodyParser.json()
 
 
 
-// --------------------   CRUD GRUPODE DE MENTORIA  ---------------------        
+// --------------------   CRUD GRUPO DE DE MENTORIA  ---------------------        
 
 app.get('/v1/studyfy/mentorias', cors(), async function(request, response) {
     try {
@@ -367,7 +367,7 @@ app.put('/v1/studyfy/mentorias/:id', cors(), bodyParserJSON, async function(requ
 // --------------------   CRUD DE MEMBROS  --------------------- 
 
 
-app.get('/v1/studyfy/membros', cors(), async function(request, response) {
+app.get('/v1/studyfy/membros/grupo', cors(), async function(request, response) {
     try {
         // Chama a função da controller para retornar todos os grupos de mentoria
         let dadosMembros = await controllerMembros.getListarMembros();
@@ -375,6 +375,39 @@ app.get('/v1/studyfy/membros', cors(), async function(request, response) {
         // Validação para verificar se existem dados a serem retornados
         response.status(dadosMembros.status_code);
         response.json(dadosMembros);
+    } catch (error) {
+        console.error('Erro ao listar os membros:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+
+
+app.get('/v1/studyfy/membros/grupo/:id', cors(), async function(request, response) {
+    try {
+        // Recebe o ID da requisição
+        let idMembros = request.params.id;
+        
+        // Encaminha o ID para a controller buscar o grupo de mentoria
+        let dadosMembros = await controllerMembros.getBuscarMembroId(idMembros);
+        
+        response.status(dadosMembros.status_code);
+        response.json(dadosMembros);
+    } catch (error) {
+        console.error('Erro ao buscar grupo de mentoria:', error);
+        response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });
+    }
+});
+
+
+app.get('/v1/studyfy/membros/mentor', cors(), async function(request, response) {
+    try {
+        // Chama a função da controller para retornar todos os grupos de mentoria
+        let dadosMembrosMentores = await controllerMembros.getListarMembrosMentores();
+        
+        // Validação para verificar se existem dados a serem retornados
+        response.status(dadosMembrosMentores.status_code);
+        response.json(dadosMembrosMentores);
     } catch (error) {
         console.error('Erro ao listar os membros:', error);
         response.status(500).json({ status_code: 500, message: 'Erro interno do servidor' });

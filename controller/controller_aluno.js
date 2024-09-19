@@ -41,6 +41,27 @@ function isValidDate(dateString) {
     return true;
 }
 
+function converterData(data) {
+
+    const partes = data.split('-');
+      try{
+      if (partes.length === 3) {
+    
+        const dia = partes[0];
+        const mes = partes[1];
+        const ano = partes[2];
+          
+        const dataFormatada = `${ano}-${mes}-${dia}`
+          return dataFormatada;
+        } else {
+          return false
+        }
+    }catch(error){
+        console.log(error);
+        return false
+    }
+      }
+
 const getListarAlunosMentores = async function(id) {
     try {
         // Criar o objeto JSON
@@ -261,5 +282,6 @@ module.exports = {
     setInserirNovoAluno,
     setAtualizarAluno,
     setExcluirAluno,
-    getListarAlunosMentores
+    getListarAlunosMentores,
+    converterData
 };
